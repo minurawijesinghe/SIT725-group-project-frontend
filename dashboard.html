@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <ul id="slide-out" class="sidenav">
+        <li><a href="#!">Home</a></li>
+        <li><a href="#!">Profile</a></li>
+        <li><a href="#!">Settings</a></li>
+        <li><a href="#!">Logout</a></li>
+    </ul>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header Row -->
+        <div class="row dashboard-header">
+            <div class="col s6">
+                <!-- Menu Icon -->
+                <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <!-- <span class="menu-text">Menu</span> -->
+            </div>
+            <div class="col s6 right-align">
+                <!-- Log Out Button -->
+                <button class="btn-small grey">Log Out</button>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <div class="row center-align">
+            <h5>Personal Expense Tracker</h5>
+        </div>
+
+        <!-- Remaining Balance Section -->
+        <div class="row center-align">
+            <div class="balance-box">
+                <span>Remaining Balance</span>
+            </div>
+            <p class="small-text">Remaining Balance according to the target</p>
+        </div>
+
+        <!-- Expense Cards -->
+        <div class="row expense-cards">
+            <div class="col s6 m3">
+                <div class="card grey lighten-2 card-panel">
+                    <i class="material-icons card-icon">shopping_cart</i>
+                    <h6 class="card-title">Card 1</h6>
+                    <p class="card-description">Description of expense.</p>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card grey lighten-2 card-panel">
+                    <i class="material-icons card-icon">shopping_cart</i>
+                    <h6 class="card-title">Card 2</h6>
+                    <p class="card-description">Details of shopping.</p>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card grey lighten-2 card-panel">
+                    <i class="material-icons card-icon">local_dining</i>
+                    <h6 class="card-title">Card 3</h6>
+                    <p class="card-description">Dining-related expense.</p>
+                </div>
+            </div>
+            <div class="col s6 m3">
+                <div class="card grey lighten-2 card-panel">
+                    <i class="material-icons card-icon">directions_car</i>
+                    <h6 class="card-title">Card 4</h6>
+                    <p class="card-description">Travel expense info.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="row center-align">
+            <p class="cards-label">CARDS Expenses varieties</p>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems);
+        });
+    </script>
+</body>
+</html>
