@@ -29,11 +29,5 @@ This project is a **Personal Expense Tracker** designed to help users manage the
 - **Material Icons**: For visual elements like icons.
 - **JavaScript**: For handling interactivity.
 
----
 
-## Installation and Setup
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/expense-tracker.git
 
