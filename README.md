@@ -14,10 +14,6 @@ This project is a **Personal Expense Tracker** designed to help users manage the
 
 ### Profile Page
 - **Profile Overview**: Displays user details such as name, email, and password.
-- **Profile Actions**: 
-  - **Edit**: Allows users to update their profile details.
-  - **Cancel**: Cancels the editing process and reverts changes.
-  - Notes: Edit button changes to an "Update" button when editing is in progress.
 
 ---
 
