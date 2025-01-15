@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Details</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <ul id="slide-out" class="sidenav">
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="category.html">Categories</a></li>
+        <li><a href="expenses.html">Expenses</a></li>
+    </ul>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="row dashboard-header">
+            <div class="col s6">
+                <!-- Menu Icon -->
+                <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            </div>
+            
+            <div class="col s6 right-align">
+                <!-- Display Username -->
+                <span id="username-display" class="blue-text"></span>
+                <button class="btn-small grey">Log Out</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="center-align">Category Details</h5>
+            </div>
+        </div>
+
+        <!-- Category Details Section -->
+        <div class="row" id="category-details">
+            <!-- Dynamically loaded content will go here -->
+        </div>
+
+        <!-- Back Button -->
+        <div class="row center-align">
+            <a href="dashboard.html" class="btn">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <footer class="page-footer grey darken-3">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 center-align">
+                    <h6 class="white-text">Personal Expense Tracker</h6>
+                    <p class="grey-text text-lighten-4">
+                        Manage your expenses efficiently and effectively.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container center-align">
+                © 2025 Personal Expense Tracker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h5>Update Category</h5>
+            <div class="row">
+                <form id="update-form" class="col s12">
+                    <div class="input-field col s12">
+                        <input id="name" type="text" required>
+                        <label for="name">Name</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="color" type="text" required>
+                        <label for="color">Color (Hex Code)</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <textarea id="description" class="materialize-textarea" required></textarea>
+                        <label for="description">Description</label>
+                    </div>
+                    <div class="col s12">
+                        <button type="submit" class="btn">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        
+    </script>
+</body>
+</html>
