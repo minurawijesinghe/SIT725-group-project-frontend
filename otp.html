@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Screen</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card-panel center-align">
+            <h4>Personal Expense Tracker</h4>
+
+            <form id="otpForm">
+                <!-- Email Input -->
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="email" type="email" class="validate" required>
+                        <label for="email">Email:</label>
+                    </div>
+                    <p class="small-text">Enter your email to receive an OTP.</p>
+                </div>
+
+                <!-- OTP Input -->
+                <div class="row" id="otpField" style="display: none;">
+                    <div class="input-field col s12">
+                        <input id="otp" type="text" class="validate">
+                        <label for="otp">OTP:</label>
+                    </div>
+                </div>
+
+                <!-- Password Inputs -->
+                <div class="row" id="passwordFields" style="display: none;">
+                    <div class="input-field col s12">
+                        <input id="password" type="password" class="validate">
+                        <label for="password">Password:</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="confirm_password" type="password" class="validate">
+                        <label for="confirm_password">Confirm Password:</label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="row">
+                    <button id="sendOtpBtn" class="btn blue darken-1 waves-effect waves-light" type="button">Send OTP</button>
+                    <button id="verifyOtpBtn" class="btn green darken-1 waves-effect waves-light" type="button" style="display: none;">Verify OTP</button>
+                    <button id="saveBtn" class="btn blue darken-1 waves-effect waves-light" type="submit" style="display: none;">Save</button>
+                    <a href="login.html" class="btn grey darken-1 waves-effect waves-light" type="button">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <script>
+        // Initialize EmailJS
+        (function(){
+            emailjs.init({
+                publicKey: "g-SnkaMn-4nUiLGzR",
+            });
+        })();
+
+        let generatedOTP = null;
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Get email from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+
+
+            if (!email) {
+                alert('Email not found. Please return to registration.');
+                return;
+            }
+            document.getElementById('email').value = email;
+        });
+
+        document.getElementById('sendOtpBtn').addEventListener('click', function () {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter your email!');
+                return;
+            }
+
+            // Generate a random 6-digit OTP
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Send email using EmailJS
+            emailjs.send('service_yvtqt05', 'template_i4iw5yy', {
+                to_name: email,
+                otp: generatedOTP,
+            }).then(() => {
+                alert('OTP sent to your email!');
+                document.getElementById('otpField').style.display = 'block';
+                document.getElementById('sendOtpBtn').style.display = 'none';
+                document.getElementById('verifyOtpBtn').style.display = 'inline-block';
+            }).catch((error) => {
+                console.error('EmailJS Error:', error);
+                alert('Failed to send OTP. Please try again.');
+            });
+        });
+
+        document.getElementById('verifyOtpBtn').addEventListener('click', function () {
+            const enteredOtp = document.getElementById('otp').value;
+            if (enteredOtp === generatedOTP) {
+                alert('OTP verified successfully!');
+                document.getElementById('otpField').style.display = 'none';
+                document.getElementById('verifyOtpBtn').style.display = 'none';
+                document.getElementById('passwordFields').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'inline-block';
+
+                // window.location.href = `login.html`;
+            } else {
+                alert('Invalid OTP. Please try again.');
+            }
+        });
+
+        document.getElementById('otpForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            alert('Password updated successfully!');
+            window.location.href = 'login.html'; // Redirect to login page
+        });
+    </script>
+</body>
+</html>
