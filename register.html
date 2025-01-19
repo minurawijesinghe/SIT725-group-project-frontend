@@ -38,7 +38,6 @@
                     </div>
                 </div>
 
-                <!-- Avatar Upload Section -->
                 <div class="row center-align">
                     <div class="file-field input-field">
                         <div class="btn blue darken-1">
@@ -65,7 +64,7 @@
         </div>
     </div>
 
-    <!-- Modal Structure -->
+    <!-- Modals -->
     <div id="responseModal" class="modal">
         <div class="modal-content">
             <h4 id="modalTitle">Response</h4>
@@ -82,47 +81,70 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const modal = M.Modal.init(document.querySelector('#responseModal'));
-
+    
             async function handleRegisterFormSubmit(event) {
                 event.preventDefault();
-
-                const firstName = document.getElementById('first_name').value;
-                const lastName = document.getElementById('last_name').value;
-                const email = document.getElementById('email').value;
+    
+                const firstName = document.getElementById('first_name').value.trim();
+                const lastName = document.getElementById('last_name').value.trim();
+                const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirm_password').value;
-
-                if (password !== confirmPassword) {
-                    showModal('Error', 'Passwords do not match.');
+    
+                // Validatios
+                if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                    M.toast({ html: 'Please fill out all fields.', classes: 'red darken-1' });
                     return;
                 }
-
+    
+                if (password.length < 6) {
+                    M.toast({ html: 'Password must be at least 6 characters long.', classes: 'red darken-1' });
+                    return;
+                }
+    
+                if (password !== confirmPassword) {
+                    M.toast({ html: 'Passwords do not match.', classes: 'red darken-1' });
+                    return;
+                }
+    
                 const requestData = {
                     name: `${firstName} ${lastName}`,
                     email: email,
                     password: password,
                 };
-
-                const response = await registerUser(requestData);
-
-                if (response.success) {
-                    showModal('Success', response.message);
-                    setTimeout(() => {
-                        window.location.href = `login.html`;
-                    }, 2000);
-                } else {
-                    showModal('Error', response.message);
+    
+                try {
+                    const response = await registerUser(requestData);
+    
+                    if (response.success) {
+                        M.toast({ html: 'Registration successful!', classes: 'green darken-1' });
+                        setTimeout(() => {
+                            window.location.href = `login.html`;
+                        }, 2000);
+                    } else {
+                        M.toast({ html: response.message, classes: 'red darken-1' });
+                    }
+                } catch (error) {
+                    M.toast({ html: 'Something went wrong. Please try again later.', classes: 'red darken-1' });
                 }
             }
-
+    
             function showModal(title, message) {
                 document.getElementById('modalTitle').innerText = title;
                 document.getElementById('modalMessage').innerText = message;
                 modal.open();
             }
-
+    
             document.getElementById('registerForm').addEventListener('submit', handleRegisterFormSubmit);
         });
+    
+        async function registerUser(data) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ success: true, message: 'Registration successful!' });
+                }, 1000);
+            });
+        }
     </script>
 </body>
 </html>
