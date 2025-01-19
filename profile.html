@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Personal Expense Tracker</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link href="css/dashboard.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <ul id="slide-out" class="sidenav">
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <!-- <li><a href="category.html">Categories</a></li> -->
+        <li><a href="expenses.html">Expenses</a></li>
+    </ul>
+    <div class="container">
+        <div class="row dashboard-header">
+            <div class="col s6">
+                <!-- Menu Icon -->
+                <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            </div>
+            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                <!-- Display Username -->
+                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            </div>
+        </div>
+        <div class="card-panel center-align profile-card">
+            
+            <h5>Profile</h5>
+
+            <div class="profile-image">
+                <i class="material-icons large">account_circle</i>
+            </div>
+
+            <div class="user-info">
+                <p><strong>Username:</strong> <span id="username">Loading...</span></p>
+                <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+                <p><strong>User ID:</strong> <span id="id">Loading...</span></p>
+            </div>
+
+            <div class="button-row">
+                <button id="editBtn" class="btn grey lighten-1">Edit</button>
+                <button id="cancelBtn" class="btn grey lighten-1">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <footer class="page-footer grey darken-3">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 center-align">
+                    <h6 class="white-text">Personal Expense Tracker</h6>
+                    <p class="grey-text text-lighten-4">
+                        Manage your expenses efficiently and effectively.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container center-align">
+                © 2025 Personal Expense Tracker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Sidenav
+            var elems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elems);
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = `login.html`;
+                return;
+            }
+
+            
+            const username = localStorage.getItem("username");
+            const email = localStorage.getItem("email");
+            const id = localStorage.getItem("id");
+
+            if (username) {
+                document.getElementById("username-display").textContent = username;
+            }
+
+            document.getElementById("username").textContent = username || "Not Available";
+            document.getElementById("email").textContent = email || "Not Available";
+            document.getElementById("id").textContent = id || "Not Available";
+
+            // Logout 
+            document.getElementById("logoutBtn").addEventListener("click", function () {
+                localStorage.clear();
+                alert("Logged out successfully!");
+                window.location.href = "login.html";
+            });
+
+            
+            document.getElementById("editBtn").addEventListener("click", function () {
+                alert("Edit button clicked!");
+            });
+
+            document.getElementById("cancelBtn").addEventListener("click", function () {
+                alert("Cancel button clicked!");
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <ul id="slide-out" class="sidenav">
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <!-- <li><a href="category.html">Categories</a></li> -->
+        <li><a href="expenses.html">Expenses</a></li>
+    </ul>
+
+    <div class="container">
+        <div class="row dashboard-header">
+            <div class="col s6">
+                <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            </div>
+            
+            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                
+                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            </div>
+        </div>
+
+        <div class="row center-align">
+            <h5>Personal Expense Tracker</h5>
+        </div>
+
+        <div class="row center-align">
+            <div class="balance-box">
+                <h5>Remaining Balance</h5>
+                <h3>Rs. 0.00</h3>
+                <p id="total-balance" class="red-text">Rs. 0.00</p>
+            </div>
+            
+            <p class="small-text">Remaining Balance according to the target</p>
+            <button class="btn modal-trigger" data-target="add-category-modal">Add New Category</button>
+        </div>
+
+        <div class="row expense-cards" id="categories-container">
+            <!-- Cards area -->
+        </div>
+
+        <!-- Footer  -->
+        <div class="row center-align">
+            
+        </div>
+    </div>
+
+    <footer class="page-footer grey darken-3">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 center-align">
+                    <h6 class="white-text">Personal Expense Tracker</h6>
+                    <p class="grey-text text-lighten-4">
+                        Manage your expenses efficiently and effectively.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container center-align">
+                © 2025 Personal Expense Tracker. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="add-category-modal" class="modal">
+        <div class="modal-content">
+            <h5>Add New Category</h5>
+            <form id="add-category-form">
+                <div class="input-field">
+                    <input id="category-name" type="text" required>
+                    <label for="category-name">Category Name</label>
+                </div>
+                <div class="input-field">
+                    <input id="category-description" type="text" required>
+                    <label for="category-description">Description</label>
+                </div>
+                <div class="input-field">
+                    <input id="category-color" type="color" required>
+                    <label for="category-color" class="active">Color</label>
+                </div>
+                <button type="submit" class="btn">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/expenses.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            M.Sidenav.init(document.querySelectorAll('.sidenav'));
+            M.Modal.init(document.querySelectorAll('.modal'));
+            const username = localStorage.getItem("username");
+            if (username) {
+                document.getElementById("username-display").textContent = username;
+            }
+    
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error("No authentication token found!");
+                window.location.href = `login.html`;
+                return;
+            }
+    
+    
+            async function displayTotalExpensesAndThreshold() {
+                try {
+                    const [expensesResult, thresholdResult] = await Promise.all([getExpenses(token), getThreshold(token)]);
+
+                    if (expensesResult.success && thresholdResult.success) {
+                        const totalExpenses = expensesResult.data.reduce((sum, expense) => sum + expense.amount, 0);
+                        const targetBalance = thresholdResult.data.limit || 0; // Get the threshold value
+                        const remainingBalance = targetBalance - totalExpenses;
+
+                        document.querySelector(".balance-box h3").textContent = `Rs.${remainingBalance.toFixed(2)}`;
+                        document.getElementById("total-balance").textContent = `Limit: Rs.${targetBalance.toFixed(2)}`;
+                    } else {
+                        console.error("Failed to fetch data:", expensesResult.message || thresholdResult.message);
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                }
+            }
+    
+            async function displayCategories() {
+                try {
+                    const result = await getCategories(token);
+                    if (result.success) {
+                        const categoriesContainer = document.getElementById("categories-container");
+                        result.data.forEach(category => {
+                            const card = document.createElement("div");
+                            card.className = "col s6 m3";
+    
+                            card.innerHTML = `
+                                <div class="card grey lighten-2 card-panel category-card" data-id="${category._id}">
+                                    <i class="material-icons card-icon" style="color: ${category.color};">category</i>
+                                    <h6 class="card-title">${category.name}</h6>
+                                    <p class="card-description">${category.description}</p>
+                                </div>
+                            `;
+                            categoriesContainer.appendChild(card);
+                        });
+    
+                        document.querySelectorAll(".category-card").forEach(card => {
+                            card.addEventListener("click", function () {
+                                const categoryId = this.getAttribute("data-id");
+                                window.location.href = `category.html?id=${categoryId}`;
+                            });
+                        });
+                    } else {
+                        console.error("Failed to fetch categories:", result.message);
+                    }
+                } catch (error) {
+                    console.error("Error fetching categories:", error);
+                }
+            }
+    
+            document.getElementById("add-category-form").addEventListener("submit", async function (e) {
+                e.preventDefault();
+    
+                const name = document.getElementById("category-name").value;
+                const description = document.getElementById("category-description").value;
+                const color = document.getElementById("category-color").value;
+    
+                try {
+                    const result = await addCategory(token, { name, description, color });
+                    if (result.success) {
+                        M.toast({ html: 'Category added successfully!' });
+                        window.location.reload(); 
+                    } else {
+                        M.toast({ html: 'Failed to add category: ' + result.message });
+                    }
+                } catch (error) {
+                    console.error("Error adding category:", error);
+                }
+            });
+    
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function () {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('email');
+                    localStorage.removeItem('accepted');
+                    localStorage.removeItem('id');
+                    window.location.href = 'login.html';
+                });
+            }
+    
+            await displayTotalExpensesAndThreshold();
+            await displayCategories();
+        });
+    </script>
+    
+</body>
+</html>

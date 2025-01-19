@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card-panel">
+            <h4 class="center-align">Personal Expense Tracker</h4>
+            <p class="center-align">Some details on Expense Tracker...</p>
+
+            <div class="row">
+                <form id="loginForm" class="col s12">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="email" type="email" class="validate" required>
+                            <label for="email">Email:</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="password" type="password" class="validate" required>
+                            <label for="password">Password:</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 center-align">
+                            <button class="btn green darken-1 waves-effect waves-light" type="submit">Log In</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="center-align">
+                <p><a href="otp.html">Forgotten Password</a> <span class="small-text">to get Support</span></p>
+                <a href="register.html" class="btn purple darken-1 waves-effect waves-light">Create New Account</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("loginForm").addEventListener("submit", handleLoginFormSubmit);
+
+            async function handleLoginFormSubmit(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                const requestBody = {
+                    email: email,
+                    password: password,
+                };
+
+                const response = await loginUser(requestBody);
+
+                if (response.success) {
+                    const { user, token } = response;
+
+                    // Store session data in localStorage
+                    localStorage.setItem("authToken", token);
+                    localStorage.setItem("username", user.name);
+                    localStorage.setItem("email", user.email);
+                    localStorage.setItem("id", user._id);
+                    localStorage.setItem("accepted", "true");
+
+                    // Redirect to dashboard.html
+                    window.location.href = "dashboard.html";
+                } else {
+                    M.toast({
+                        html: `Login failed: ${response.message}`,
+                        classes: "red darken-1",
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
