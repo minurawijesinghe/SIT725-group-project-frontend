@@ -14,21 +14,19 @@
     <ul id="slide-out" class="sidenav">
         <li><a href="dashboard.html">Home</a></li>
         <li><a href="profile.html">Profile</a></li>
-        <li><a href="category.html">Categories</a></li>
+        <!-- <li><a href="category.html">Categories</a></li> -->
         <li><a href="expenses.html">Expenses</a></li>
     </ul>
     <div class="container">
-        <!-- Header Section -->
         <div class="row dashboard-header">
             <div class="col s6">
-                <!-- Menu Icon -->
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
             
-            <div class="col s6 right-align">
-                <!-- Display Username -->
-                <span id="username-display" class="blue-text"></span>
-                <button class="btn-small grey">Log Out</button>
+            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                
+                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
             </div>
         </div>
         <div class="row">
@@ -37,12 +35,11 @@
             </div>
         </div>
 
-        <!-- Category Details Section -->
+        
         <div class="row" id="category-details">
-            <!-- Dynamically loaded content will go here -->
+            <!-- Cards area -->
         </div>
 
-        <!-- Back Button -->
         <div class="row center-align">
             <a href="dashboard.html" class="btn">Back to Dashboard</a>
         </div>
@@ -66,7 +63,7 @@
         </div>
     </footer>
 
-    <!-- Update Modal -->
+    <!-- Modal -->
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <h5>Update Category</h5>
@@ -94,8 +91,115 @@
 
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="js/categories.js"></script>
     <script>
-        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const elems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elems);
+
+            const modalElems = document.querySelectorAll('.modal');
+            M.Modal.init(modalElems);
+
+            const updateModalInstance = M.Modal.getInstance(document.getElementById('updateModal'));
+            const categoryDetailsContainer = document.getElementById('category-details');
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('id');
+
+            if (!categoryId) {
+                M.toast({ html: 'Category ID is missing in the URL!' });
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                M.toast({ html: 'You are not authenticated!' });
+                window.location.href = `login.html`;
+                return;
+            }
+
+            const username = localStorage.getItem("username");
+            if (username) {
+                document.getElementById("username-display").textContent = username;
+            }
+
+            async function loadCategoryDetails() {
+                try {
+                    const result = await getCategoryById(categoryId, token);
+
+                    if (result.success) {
+                        const category = result.data;
+                        categoryDetailsContainer.innerHTML = `
+                            <div class="col s12 m8 offset-m2 card">
+                                <div class="card-content">
+                                    <span class="card-title" style="color: ${category.color};">${category.name}</span>
+                                    <p><strong>Description:</strong> ${category.description}</p>
+                                    <p><strong>Created At:</strong> ${new Date(category.createdAt).toLocaleString()}</p>
+                                    <p><strong>Last Updated:</strong> ${new Date(category.updatedAt).toLocaleString()}</p>
+                                    <div class="card-action">
+                                        <button id="update-btn" class="btn blue lighten-1">
+                                            <i class="material-icons left">edit</i>Update
+                                        </button>
+                                        <button id="delete-btn" class="btn red lighten-1">
+                                            <i class="material-icons left">delete</i>Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        document.getElementById('update-btn').addEventListener('click', () => {
+                            document.getElementById('name').value = category.name;
+                            document.getElementById('color').value = category.color;
+                            document.getElementById('description').value = category.description;
+                            M.updateTextFields();
+                            updateModalInstance.open();
+                        });
+
+                        document.getElementById('delete-btn').addEventListener('click', async () => {
+                            try {
+                                const deleteResult = await deleteCategory(categoryId, token);
+                                if (deleteResult.success) {
+                                    M.toast({ html: 'Category deleted successfully!' });
+                                    window.location.href = 'dashboard.html';
+                                } else {
+                                    M.toast({ html: 'Failed to delete category!' });
+                                }
+                            } catch (error) {
+                                M.toast({ html: 'An error occurred while deleting the category!' });
+                            }
+                        });
+                    } else {
+                        M.toast({ html: 'Failed to load category details!' });
+                    }
+                } catch (error) {
+                    M.toast({ html: 'An error occurred while fetching category details!' });
+                }
+            }
+
+            loadCategoryDetails();
+
+            document.getElementById('update-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updatedCategory = {
+                    name: document.getElementById('name').value,
+                    color: document.getElementById('color').value,
+                    description: document.getElementById('description').value,
+                };
+
+                try {
+                    const updateResult = await updateCategory(categoryId, token, updatedCategory);
+                    if (updateResult.success) {
+                        M.toast({ html: 'Category updated successfully!' });
+                        updateModalInstance.close();
+                        loadCategoryDetails();
+                    } else {
+                        M.toast({ html: 'Failed to update category!' });
+                    }
+                } catch (error) {
+                    M.toast({ html: 'An error occurred while updating the category!' });
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -14,33 +14,58 @@
     <ul id="slide-out" class="sidenav">
         <li><a href="dashboard.html">Home</a></li>
         <li><a href="profile.html">Profile</a></li>
-        <li><a href="category.html">Categories</a></li>
+        <!-- <li><a href="category.html">Categories</a></li> -->
         <li><a href="expenses.html">Expenses</a></li>
     </ul>
     <div class="container">
         <div class="row dashboard-header">
             <div class="col s6">
-                <!-- Menu Icon -->
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
-            
-            <div class="col s6 right-align">
-                <!-- Display Username -->
-                <span id="username-display" class="blue-text"></span>
-                <button class="btn-small grey">Log Out</button>
+            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                
+                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
             </div>
         </div>
-        <!-- Title -->
-        <h5 class="center-align">Expenses</h5>
 
-        <!-- Add Expense Button -->
-        <div class="row center-align">
-            <a class="btn modal-trigger" href="#add-expense-modal">
-                <i class="material-icons left">add</i>Add Expense
-            </a>
+        <div class="row">
+            <div class="col s8">
+                <div class="card balance-box" style="width:100%;">
+                    <div class="card-content">
+                        <h6>Total Expenses</h6>
+                        <h4 id="total-expenses" class="blue-text">$0.00</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col s4 center-align valign-wrapper" style="height: 100%; flex-direction: column; justify-content: center; margin-top: 70px;">
+                <button class="btn modal-trigger" href="#set-threshold-modal" style="margin-bottom: 15px; width: 70%;">
+                    <i class="material-icons left">edit</i>Set Threshold
+                </button>
+                <button class="btn modal-trigger add-btn" style="margin-bottom: 15px; width: 70%;">
+                    <i class="material-icons left">add</i>Add Expense
+                </button>
+            </div>
         </div>
 
-        <!-- Expense Table -->
+        <div class="row">
+            <div class="col s6">
+                <div class="input-field">
+                    <input type="text" id="search-bar" placeholder="Search by name">
+                    <label for="search-bar">Search Transactions</label>
+                </div>
+            </div>
+            <div class="col s6">
+                <div class="input-field">
+                    <select id="filter-category">
+                        <option value="" selected>All Categories</option>
+                    </select>
+                    <label for="filter-category">Filter by Category</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
         <table class="highlight centered responsive-table">
             <thead>
                 <tr>
@@ -51,7 +76,6 @@
                 </tr>
             </thead>
             <tbody id="expenses-table">
-                <!-- Dynamic content will be loaded here -->
             </tbody>
         </table>
     </div>
@@ -74,14 +98,14 @@
         </div>
     </footer>
 
-    <!-- Add Expense Modal -->
+    <!-- Expense Modal -->
     <div id="add-expense-modal" class="modal">
         <div class="modal-content">
             <h5>Add New Expense</h5>
             <form id="add-expense-form">
                 <div class="input-field">
                     <input id="amount" type="number" step="0.01" required>
-                    <label for="amount">Amount</label>
+                    <label for="amount">Amount (Rs.)</label>
                 </div>
                 <div class="input-field">
                     <input id="description" type="text" required>
@@ -90,7 +114,7 @@
                 <div class="input-field">
                     <select id="category" required>
                         <option value="" disabled selected>Choose a category</option>
-                        <!-- Categories will be dynamically loaded here -->
+                        
                     </select>
                     <label>Category</label>
                 </div>
@@ -105,10 +129,301 @@
         </div>
     </div>
 
+    
+
+    <!-- Set Threshold Modal -->
+    <div id="set-threshold-modal" class="modal">
+        <div class="modal-content">
+            <h5>Set Threshold Limit</h5>
+            <form id="set-threshold-form">
+                <div class="input-field">
+                    <input type="number" id="threshold" step="0.01" required />
+                    <label for="amount">Threshold (Rs.)</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Set</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="js/expenses.js"></script>
+    <script src="js/categories.js"></script>
     <script>
-        
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                M.toast({ html: 'You are not authenticated!' });
+                window.location.href = `login.html`;
+                return;
+            }
+            var id = "";
+            const username = localStorage.getItem("username");
+            if (username) {
+                id = localStorage.getItem("id");
+                document.getElementById("username-display").textContent = `${username}`;
+            }
+
+            const totalExpensesElement = document.getElementById('total-expenses');
+            const expensesTable = document.getElementById('expenses-table');
+            const categoryDropdown = document.getElementById('category');
+            const searchBar = document.getElementById('search-bar');
+            const filterCategoryDropdown = document.getElementById('filter-category');
+
+            const elems = document.querySelectorAll('.sidenav, .modal, .datepicker, select');
+            M.Sidenav.init(elems);
+            M.Modal.init(document.querySelectorAll('.modal'));
+            M.Datepicker.init(document.querySelectorAll('.datepicker'), { format: 'yyyy-mm-dd' });
+            M.FormSelect.init(document.querySelectorAll('select'));
+
+            const loadCategories = async () => {
+                try {
+                    const result = await getCategories(token);
+                    if (result.success) {
+
+                        const categoryOptions = result.data.map(
+                            (category) => `<option value="${category._id}">${category.name}</option>`
+                        ).join('');
+
+                        categoryDropdown.innerHTML = categoryOptions;
+                        filterCategoryDropdown.innerHTML = `<option value="" selected>All Categories</option>` + categoryOptions;
+
+                        M.FormSelect.init(categoryDropdown);
+                        M.FormSelect.init(filterCategoryDropdown);
+                    } else {
+                        console.error(result.message);
+                        M.toast({ html: 'Failed to load categories!' });
+                    }
+                } catch (error) {
+                    console.log(error)
+                    M.toast({ html: 'Error loading categories!' });
+                }
+            };
+
+            const applySearchAndFilter = (expenses) => {
+                const searchTerm = searchBar.value.toLowerCase();
+                const selectedCategory = filterCategoryDropdown.value;
+
+                return expenses.filter((expense) => {
+                    const matchesSearch = expense.description.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !selectedCategory || expense.category._id === selectedCategory;
+                    return matchesSearch && matchesCategory;
+                });
+            };
+
+            const loadExpenses = async () => {
+                try {
+                    const result = await getExpenses(token);
+                    if (result.success) {
+                        let expenses = result.data;
+
+                        const renderExpenses = () => {
+                            const filteredExpenses = applySearchAndFilter(expenses);
+                            expensesTable.innerHTML = filteredExpenses.map(expense => `
+                                <tr style="color: ${expense.category.color}">
+                                    <td>${expense.description}</td>
+                                    <td>${expense.amount.toFixed(2)}</td>
+                                    <td>${expense.category.name}</td>
+                                    <td>${new Date(expense.date).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn-small blue lighten-2 update-btn" data-id="${expense._id}">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        <button class="btn-small red lighten-2 delete-btn" data-id="${expense._id}">
+                                            <i class="material-icons">delete</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('');
+                            const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+                            totalExpensesElement.innerText = `Rs.${total.toFixed(2)}`;
+                        };
+
+                        renderExpenses();
+
+                        searchBar.addEventListener('input', renderExpenses);
+                        filterCategoryDropdown.addEventListener('change', renderExpenses);
+
+                        document.querySelectorAll('.update-btn').forEach(button => {
+                            button.addEventListener('click', handleUpdateExpense);
+                        });
+                        document.querySelectorAll('.add-btn').forEach(button => {
+                            button.addEventListener('click', openAddExpenseModal);
+                        });
+                        document.querySelectorAll('.delete-btn').forEach(button => {
+                            button.addEventListener('click', handleDeleteExpense);
+                        });
+                    } else {
+                        M.toast({ html: 'Failed to load expenses!' });
+                    }
+                } catch (error) {
+                    console.log(error)
+                    M.toast({ html: 'Error loading expenses!' });
+                }
+            };
+
+            const openAddExpenseModal = () => {
+                const form = document.getElementById('add-expense-form');
+                form.reset(); 
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const amount = document.getElementById('amount').value;
+                    const description = document.getElementById('description').value;
+                    const category = document.getElementById('category').value;
+                    const date = document.getElementById('date').value;
+                    const token = localStorage.getItem('authToken');
+
+                    const expenseData = { amount, description, category, date };
+
+                    try {
+                        const [expensesResult, thresholdData] = await Promise.all([getExpenses(token), getThreshold(token)]);
+                        if (thresholdData.success && expensesResult.success) {
+                            const totalExpenses = expensesResult.data.reduce((sum, expense) => sum + expense.amount, 0);
+                            const targetBalance = thresholdData.data.limit || 0; 
+                            const newTotal = totalExpenses+parseFloat(amount);
+                            
+                            const remaining = targetBalance - newTotal;
+                            console.log("REM -"+remaining)
+                            console.log("TAR -"+targetBalance)
+                            console.log("TOT -"+newTotal)
+
+                            executeWarning(remaining);
+
+                            if (newTotal < threshold) {
+                                M.toast({ html: 'Cannot add expense. Total exceeds the threshold!' });
+                                return;
+                            }
+                        }
+
+                        const result = await addExpense(token, expenseData);
+                        if (result.success) {
+                            M.toast({ html: 'Expense added successfully!' });
+                            M.Modal.getInstance(document.getElementById('add-expense-modal')).close();
+                            await loadExpenses();
+                        } else {
+                            M.toast({ html: `Failed to add expense: ${result.message}` });
+                        }
+                    } catch (error) {
+                        console.error('Error adding expense:', error);
+                        M.toast({ html: 'Error adding expense!' });
+                    }
+                };
+
+                M.Modal.getInstance(document.getElementById('add-expense-modal')).open();
+            };
+
+
+            document.getElementById('set-threshold-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const threshold = document.getElementById('threshold').value;
+                try {
+                    const pack = {
+                        user: id,
+                        limit: parseInt(threshold, 10) 
+                    };
+                    const result = await setThreshold(token, pack);
+
+                    if (result.success) {
+                        M.toast({ html: 'Threshold set successfully!' });
+                        M.Modal.getInstance(document.getElementById('set-threshold-modal')).close();
+                    } else {
+                        M.toast({ html: 'Failed to set threshold!' });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    M.toast({ html: 'Error setting threshold!' });
+                }
+            });
+
+
+            const handleUpdateExpense = (event) => {
+                event.preventDefault();
+                const expenseId = event.target.closest('button').dataset.id;
+
+                const row = event.target.closest('tr');
+                const amount = parseFloat(row.cells[1].innerText.slice(1)); 
+                const description = row.cells[0].innerText; 
+                const category = row.cells[2].innerText; 
+                const date = row.cells[3].innerText; 
+
+                const modalInstance = M.Modal.getInstance(document.getElementById('add-expense-modal'));
+                document.getElementById('amount').value = amount;
+                document.getElementById('description').value = description;
+                M.FormSelect.init(document.getElementById('category'));
+                document.getElementById('date').value = date;
+
+
+                const form = document.getElementById('add-expense-form');
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const token = localStorage.getItem('authToken'); 
+
+                    const updatedData = {
+                        amount: document.getElementById('amount').value,
+                        description: document.getElementById('description').value,
+                        category: document.getElementById('category').value,
+                        date: document.getElementById('date').value,
+                    };
+
+                    try {
+                        const result = await updateExpense(token, expenseId, updatedData); 
+
+                        if (result.success) {
+                            M.toast({ html: 'Expense updated successfully!' });
+                            modalInstance.close();
+                            form.reset(); 
+                            await loadExpenses(); 
+                        } else {
+                            console.error(result.message);
+                            M.toast({ html: `Failed to update expense: ${result.message}` });
+                        }
+                    } catch (error) {
+                        console.error('Error updating expense:', error);
+                        M.toast({ html: 'Error updating expense!' });
+                    }
+                };
+
+                modalInstance.open(); 
+            };
+
+
+            const handleDeleteExpense = async (event) => {
+                const expenseId = event.target.closest('button').dataset.id;
+                const token = localStorage.getItem('authToken'); 
+
+                try {
+                    const result = await deleteExpense(token, expenseId);
+
+                    if (result.success) {
+                        M.toast({ html: 'Expense deleted successfully!' });
+                        await loadExpenses(); 
+                    } else {
+                        console.error(result.message);
+                        M.toast({ html: `Failed to delete expense: ${result.message}` });
+                    }
+                } catch (error) {
+                    console.error('Error deleting expense:', error);
+                    M.toast({ html: 'Error deleting expense!' });
+                }
+            };
+
+
+            const executeWarning = (remaining) => {
+                console.log("REMMM -"+remaining)
+                const percentage = (remaining / threshold) * 100;
+                if (percentage <= 10) {
+                    M.toast({ html: `Warning! You are nearing your expense limit. Remaining: Rs.${remaining.toFixed(2)}` });
+                }
+            };
+
+
+
+
+            await loadExpenses();
+            await loadCategories();
+        });
     </script>
-</body>
 </html>
