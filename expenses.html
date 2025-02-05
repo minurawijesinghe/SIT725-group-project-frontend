@@ -22,13 +22,13 @@
             <div class="col s6">
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
-            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                
-                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
-                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            <div class="col s6 right-align">
+                <span id="username-display" class="blue-text"></span>
+                <button class="btn-small grey">Log Out</button>
             </div>
         </div>
 
+        <!-- Total Expenses and Add Threshold Button -->
         <div class="row">
             <div class="col s8">
                 <div class="card balance-box" style="width:100%;">
@@ -59,13 +59,14 @@
                 <div class="input-field">
                     <select id="filter-category">
                         <option value="" selected>All Categories</option>
+                        <!-- Categories will be dynamically loaded -->
                     </select>
                     <label for="filter-category">Filter by Category</label>
                 </div>
             </div>
         </div>
 
-        <!-- Table -->
+        <!-- Expense Table -->
         <table class="highlight centered responsive-table">
             <thead>
                 <tr>
@@ -76,6 +77,7 @@
                 </tr>
             </thead>
             <tbody id="expenses-table">
+                <!-- Dynamic content will be loaded here -->
             </tbody>
         </table>
     </div>
@@ -98,14 +100,14 @@
         </div>
     </footer>
 
-    <!-- Expense Modal -->
+    <!-- Add Expense Modal -->
     <div id="add-expense-modal" class="modal">
         <div class="modal-content">
             <h5>Add New Expense</h5>
             <form id="add-expense-form">
                 <div class="input-field">
                     <input id="amount" type="number" step="0.01" required>
-                    <label for="amount">Amount (Rs.)</label>
+                    <label for="amount">Amount (AUD)</label>
                 </div>
                 <div class="input-field">
                     <input id="description" type="text" required>
@@ -114,7 +116,7 @@
                 <div class="input-field">
                     <select id="category" required>
                         <option value="" disabled selected>Choose a category</option>
-                        
+                        <!-- Categories will be dynamically loaded here -->
                     </select>
                     <label>Category</label>
                 </div>
@@ -138,7 +140,7 @@
             <form id="set-threshold-form">
                 <div class="input-field">
                     <input type="number" id="threshold" step="0.01" required />
-                    <label for="amount">Threshold (Rs.)</label>
+                    <label for="amount">Threshold (AUD)</label>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn">Set</button>
@@ -219,6 +221,7 @@
                     if (result.success) {
                         let expenses = result.data;
 
+                        // Apply search and filter initially
                         const renderExpenses = () => {
                             const filteredExpenses = applySearchAndFilter(expenses);
                             expensesTable.innerHTML = filteredExpenses.map(expense => `
@@ -238,11 +241,12 @@
                                 </tr>
                             `).join('');
                             const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-                            totalExpensesElement.innerText = `Rs.${total.toFixed(2)}`;
+                            totalExpensesElement.innerText = `AUD${total.toFixed(2)}`;
                         };
 
                         renderExpenses();
 
+                        // Add event listeners for search and filter
                         searchBar.addEventListener('input', renderExpenses);
                         filterCategoryDropdown.addEventListener('change', renderExpenses);
 
@@ -266,7 +270,7 @@
 
             const openAddExpenseModal = () => {
                 const form = document.getElementById('add-expense-form');
-                form.reset(); 
+                form.reset(); // Reset the form for a new expense
                 form.onsubmit = async (e) => {
                     e.preventDefault();
                     const amount = document.getElementById('amount').value;
@@ -281,14 +285,15 @@
                         const [expensesResult, thresholdData] = await Promise.all([getExpenses(token), getThreshold(token)]);
                         if (thresholdData.success && expensesResult.success) {
                             const totalExpenses = expensesResult.data.reduce((sum, expense) => sum + expense.amount, 0);
-                            const targetBalance = thresholdData.data.limit || 0; 
+                            const targetBalance = thresholdData.data.limit || 0; // Get the threshold value
                             const newTotal = totalExpenses+parseFloat(amount);
-                            
+                            // const newTotal = totalExpenses + amount;
                             const remaining = targetBalance - newTotal;
                             console.log("REM -"+remaining)
                             console.log("TAR -"+targetBalance)
                             console.log("TOT -"+newTotal)
 
+                            // Execute warning if necessary
                             executeWarning(remaining);
 
                             if (newTotal < threshold) {
@@ -344,11 +349,12 @@
                 const expenseId = event.target.closest('button').dataset.id;
 
                 const row = event.target.closest('tr');
-                const amount = parseFloat(row.cells[1].innerText.slice(1)); 
-                const description = row.cells[0].innerText; 
-                const category = row.cells[2].innerText; 
-                const date = row.cells[3].innerText; 
+                const amount = parseFloat(row.cells[1].innerText.slice(1)); // Extract amount
+                const description = row.cells[0].innerText; // Extract description
+                const category = row.cells[2].innerText; // Extract category
+                const date = row.cells[3].innerText; // Extract date
 
+                // Pre-fill modal with expense data
                 const modalInstance = M.Modal.getInstance(document.getElementById('add-expense-modal'));
                 document.getElementById('amount').value = amount;
                 document.getElementById('description').value = description;
@@ -356,10 +362,11 @@
                 document.getElementById('date').value = date;
 
 
+                // Update the submit event for the form
                 const form = document.getElementById('add-expense-form');
                 form.onsubmit = async (e) => {
                     e.preventDefault();
-                    const token = localStorage.getItem('authToken'); 
+                    const token = localStorage.getItem('authToken'); // Ensure token is retrieved from localStorage
 
                     const updatedData = {
                         amount: document.getElementById('amount').value,
@@ -369,13 +376,13 @@
                     };
 
                     try {
-                        const result = await updateExpense(token, expenseId, updatedData); 
+                        const result = await updateExpense(token, expenseId, updatedData); // Use the reusable function
 
                         if (result.success) {
                             M.toast({ html: 'Expense updated successfully!' });
                             modalInstance.close();
-                            form.reset(); 
-                            await loadExpenses(); 
+                            form.reset(); // Reset the form
+                            await loadExpenses(); // Refresh the expenses table
                         } else {
                             console.error(result.message);
                             M.toast({ html: `Failed to update expense: ${result.message}` });
@@ -386,20 +393,20 @@
                     }
                 };
 
-                modalInstance.open(); 
+                modalInstance.open(); // Open the modal
             };
 
 
             const handleDeleteExpense = async (event) => {
                 const expenseId = event.target.closest('button').dataset.id;
-                const token = localStorage.getItem('authToken'); 
+                const token = localStorage.getItem('authToken'); // Retrieve token dynamically
 
                 try {
-                    const result = await deleteExpense(token, expenseId);
+                    const result = await deleteExpense(token, expenseId); // Use the reusable function
 
                     if (result.success) {
                         M.toast({ html: 'Expense deleted successfully!' });
-                        await loadExpenses(); 
+                        await loadExpenses(); // Refresh the expenses table
                     } else {
                         console.error(result.message);
                         M.toast({ html: `Failed to delete expense: ${result.message}` });
@@ -415,7 +422,7 @@
                 console.log("REMMM -"+remaining)
                 const percentage = (remaining / threshold) * 100;
                 if (percentage <= 10) {
-                    M.toast({ html: `Warning! You are nearing your expense limit. Remaining: Rs.${remaining.toFixed(2)}` });
+                    M.toast({ html: `Warning! You are nearing your expense limit. Remaining: AUD${remaining.toFixed(2)}` });
                 }
             };
 

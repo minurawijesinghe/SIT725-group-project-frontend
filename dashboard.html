@@ -19,39 +19,46 @@
         <li><a href="expenses.html">Expenses</a></li>
     </ul>
 
+    <!-- Main Content -->
     <div class="container">
+        <!-- Header Row -->
         <div class="row dashboard-header">
             <div class="col s6">
+                <!-- Menu Icon -->
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
             
-            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                
-                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
-                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            <div class="col s6 right-align">
+                <!-- Display Username -->
+                <span id="username-display" class="blue-text"></span>
+                <button id="logout-btn" class="btn-small grey">Log Out</button>
             </div>
         </div>
 
+        <!-- Title -->
         <div class="row center-align">
             <h5>Personal Expense Tracker</h5>
         </div>
 
+        <!-- Remaining Balance Section -->
         <div class="row center-align">
             <div class="balance-box">
                 <h5>Remaining Balance</h5>
-                <h3>Rs. 0.00</h3>
-                <p id="total-balance" class="red-text">Rs. 0.00</p>
+                <h3>AUD 0.00</h3>
+                <p id="total-balance" class="red-text">AUD 0.00</p>
             </div>
             
             <p class="small-text">Remaining Balance according to the target</p>
+            <!-- Add New Category Button -->
             <button class="btn modal-trigger" data-target="add-category-modal">Add New Category</button>
         </div>
 
+        <!-- Dynamic Expense Cards Section -->
         <div class="row expense-cards" id="categories-container">
-            <!-- Cards area -->
+            <!-- Cards will be dynamically loaded here -->
         </div>
 
-        <!-- Footer  -->
+        <!-- Footer Section -->
         <div class="row center-align">
             
         </div>
@@ -75,7 +82,7 @@
         </div>
     </footer>
 
-    <!-- Modal -->
+    <!-- Add Category Modal -->
     <div id="add-category-modal" class="modal">
         <div class="modal-content">
             <h5>Add New Category</h5>
@@ -104,13 +111,17 @@
     <script src="js/expenses.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
+            // Initialize sidenav and modal
             M.Sidenav.init(document.querySelectorAll('.sidenav'));
             M.Modal.init(document.querySelectorAll('.modal'));
+    
+            // Display username from localStorage
             const username = localStorage.getItem("username");
             if (username) {
                 document.getElementById("username-display").textContent = username;
             }
     
+            // Fetch token from localStorage
             const token = localStorage.getItem('authToken');
             if (!token) {
                 console.error("No authentication token found!");
@@ -128,8 +139,8 @@
                         const targetBalance = thresholdResult.data.limit || 0; // Get the threshold value
                         const remainingBalance = targetBalance - totalExpenses;
 
-                        document.querySelector(".balance-box h3").textContent = `Rs.${remainingBalance.toFixed(2)}`;
-                        document.getElementById("total-balance").textContent = `Limit: Rs.${targetBalance.toFixed(2)}`;
+                        document.querySelector(".balance-box h3").textContent = `AUD${remainingBalance.toFixed(2)}`;
+                        document.getElementById("total-balance").textContent = `Limit: AUD${targetBalance.toFixed(2)}`;
                     } else {
                         console.error("Failed to fetch data:", expensesResult.message || thresholdResult.message);
                     }
@@ -182,7 +193,7 @@
                     const result = await addCategory(token, { name, description, color });
                     if (result.success) {
                         M.toast({ html: 'Category added successfully!' });
-                        window.location.reload(); 
+                        window.location.reload(); // Refresh the page to show the new category
                     } else {
                         M.toast({ html: 'Failed to add category: ' + result.message });
                     }

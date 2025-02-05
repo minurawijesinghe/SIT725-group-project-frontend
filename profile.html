@@ -24,26 +24,29 @@
                 <!-- Menu Icon -->
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
-            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                <!-- Display Username -->
-                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
-                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            <div class="col s6 right-align">
+                <span id="username-display" class="blue-text"></span>
+                <!-- Log Out Button -->
+                <button id="logoutBtn" class="btn-small grey">Log Out</button>
             </div>
         </div>
         <div class="card-panel center-align profile-card">
-            
+            <!-- Profile Header -->
             <h5>Profile</h5>
 
+            <!-- Profile Image -->
             <div class="profile-image">
                 <i class="material-icons large">account_circle</i>
             </div>
 
+            <!-- User Info -->
             <div class="user-info">
                 <p><strong>Username:</strong> <span id="username">Loading...</span></p>
                 <p><strong>Email:</strong> <span id="email">Loading...</span></p>
                 <p><strong>User ID:</strong> <span id="id">Loading...</span></p>
             </div>
 
+            <!-- Buttons -->
             <div class="button-row">
                 <button id="editBtn" class="btn grey lighten-1">Edit</button>
                 <button id="cancelBtn" class="btn grey lighten-1">Cancel</button>
@@ -83,6 +86,8 @@
             }
 
             
+
+            // Load User Data from localStorage
             const username = localStorage.getItem("username");
             const email = localStorage.getItem("email");
             const id = localStorage.getItem("id");
@@ -95,14 +100,14 @@
             document.getElementById("email").textContent = email || "Not Available";
             document.getElementById("id").textContent = id || "Not Available";
 
-            // Logout 
+            // Logout Button Handler
             document.getElementById("logoutBtn").addEventListener("click", function () {
                 localStorage.clear();
                 alert("Logged out successfully!");
                 window.location.href = "login.html";
             });
 
-            
+            // Placeholder Event Listeners for Edit and Cancel Buttons
             document.getElementById("editBtn").addEventListener("click", function () {
                 alert("Edit button clicked!");
             });

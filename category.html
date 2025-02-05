@@ -18,15 +18,17 @@
         <li><a href="expenses.html">Expenses</a></li>
     </ul>
     <div class="container">
+        <!-- Header Section -->
         <div class="row dashboard-header">
             <div class="col s6">
+                <!-- Menu Icon -->
                 <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             </div>
             
-            <div class="col s6 right-align" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                
-                <span id="username-display" class="blue-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
-                <button id="logout-btn" class="btn-small grey" style="margin: 0;"><i class="material-icons" style="font-size: 18px;">logout</i></button>
+            <div class="col s6 right-align">
+                <!-- Display Username -->
+                <span id="username-display" class="blue-text"></span>
+                <button class="btn-small grey">Log Out</button>
             </div>
         </div>
         <div class="row">
@@ -35,11 +37,12 @@
             </div>
         </div>
 
-        
+        <!-- Category Details Section -->
         <div class="row" id="category-details">
-            <!-- Cards area -->
+            <!-- Dynamically loaded content will go here -->
         </div>
 
+        <!-- Back Button -->
         <div class="row center-align">
             <a href="dashboard.html" class="btn">Back to Dashboard</a>
         </div>
@@ -63,7 +66,7 @@
         </div>
     </footer>
 
-    <!-- Modal -->
+    <!-- Update Modal -->
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <h5>Update Category</h5>
@@ -122,6 +125,7 @@
                 document.getElementById("username-display").textContent = username;
             }
 
+            // Load Category Details
             async function loadCategoryDetails() {
                 try {
                     const result = await getCategoryById(categoryId, token);
